@@ -1,4 +1,4 @@
--- sql_code : Purging Radacct Records
+-- sql_code : To Purge Radacct Records older than 90 days on production radacct servers ;
 delimiter &&
 create definer ='root'@'localhost' procedure purge_radacct() language sql modifies sql data
 del_pro:begin
