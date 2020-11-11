@@ -26,11 +26,12 @@ purge_code:begin
             status=dml_action, comment=live_comment where log_tbl_id=last_inserted_id;
         end ;
     -- logging
-    insert into radius13.logs (log_head,query_type,start_time,status,comment) values
+    insert into radius13.logs (log_head,query_type,start_time,status,comment) values 
                               ('Purge Radacct Table','delete',NOW(),dml_action,live_comment);
+    -- find last inserted id in log table.
     select last_insert_id() into last_inserted_id;
     -- find radacctid and store into variable radacct_id , using radacctid found to calculate rows to delete;
-    START TRANSACTION ;
+    start transaction ;
     select radacctid into radacct_id from radius13.radacct where acctstoptime < (NOW() - interval 90 DAY ) and
            acctstoptime is not null order by radacctid desc limit 1 ;
     select count(*) into row_count from radius13.radacct where acctstoptime is not null and radacctid <= radacct_id;
@@ -38,7 +39,7 @@ purge_code:begin
     -- logging
     update radius13.logs set stop_time=NOW(), rows_affected=row_count, activity_time=timediff(stop_time,start_time),
                              comment=live_comment where log_tbl_id=last_inserted_id;
-    COMMIT ;
+    commit ;
     -- purge operation on radacct table using found radacct_id and row_count
     -- looping starts
     looper_deletes : loop
